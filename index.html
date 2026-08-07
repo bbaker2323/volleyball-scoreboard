@@ -207,7 +207,7 @@
 
 <div class="grid" id="grid"></div>
 
-<footer>Data seeded manually pre-season (Jul 26, 2026); Moody Bible Institute added Aug 2, 2026. Record/Conf/Last 5/RPI columns added Aug 2, 2026 (all zeroed out pre-season). Updated automatically by a daily check once each team's 2026 season begins.</footer>
+<footer>Data seeded manually pre-season (Jul 26, 2026). Record/Conf/Last 5/RPI columns added Aug 2, 2026 (all zeroed out pre-season). Moody Bible Institute removed Aug 7, 2026. Updated automatically by a daily check once each team's 2026 season begins.</footer>
 
 <script>
 // ---- DATA_START ----
@@ -217,7 +217,7 @@
 // Each match: { date, opponent, homeAway, result: "W"|"L", setScore: "3-1", playerStats: [{player, kills, digs, aces, assists, blocks}] }
 // RPI source (D1 only): https://www.ncaa.com/rankings/volleyball-women/d1/ncaa-womens-volleyball-rpi
 // trackRpi is false for non-D1 programs (Moody Bible, Emory, UW-Stevens Point, St. Thomas (FL)) per Brad's request 2026-08-02.
-const LAST_UPDATED = "2026-08-02";
+const LAST_UPDATED = "2026-08-07";
 const RPI_SOURCE_URL = "https://www.ncaa.com/rankings/volleyball-women/d1/ncaa-womens-volleyball-rpi";
 
 const TEAMS = [
@@ -239,8 +239,7 @@ const TEAMS = [
   { college: "Marquette", players: ["Molly Welge"], scheduleUrl: "https://gomarquette.com/sports/womens-volleyball", igUrl: "https://www.instagram.com/marquettevb/", twitterUrl: "https://x.com/MarquetteVB", opener: { date: "2026-08-24", opponent: "Texas", homeAway: "Neutral", note: "AVCA First Serve, Fiserv Forum" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
   { college: "Presbyterian College", players: ["Kierra O'Donnell"], scheduleUrl: "https://gobluehose.com/sports/womens-volleyball", igUrl: "https://www.instagram.com/bluehosewvb/", twitterUrl: "https://x.com/BlueHoseWVB", opener: { date: "2026-08-28", opponent: "Northwestern State", homeAway: "Neutral", note: "West Georgia Tournament" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
   { college: "Wake Forest", players: [], scheduleUrl: "https://godeacs.com/sports/womens-volleyball/roster", igUrl: "https://www.instagram.com/demondeacons/", twitterUrl: "https://x.com/demondeacons", opener: { date: "2026-09-04", opponent: "Davidson", homeAway: "Home", note: "Alumni weekend match" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
-  { college: "Morehead State University", players: [], scheduleUrl: "https://msueagles.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/msueaglesvb/", twitterUrl: "https://x.com/MSUEaglesVB", opener: { date: "2026-08-28", opponent: "Fairfield", homeAway: "Neutral", note: "Tennessee-hosted tournament" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
-  { college: "Moody Bible Institute (Moody Archers)", players: [], scheduleUrl: "https://www.moodyarchers.org/sports/wvball/2026-27/schedule", igUrl: "https://www.instagram.com/moody_archers/", twitterUrl: "https://x.com/moodyarchers", opener: null, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: false, rpi: null }
+  { college: "Morehead State University", players: [], scheduleUrl: "https://msueagles.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/msueaglesvb/", twitterUrl: "https://x.com/MSUEaglesVB", opener: { date: "2026-08-28", opponent: "Fairfield", homeAway: "Neutral", note: "Tennessee-hosted tournament" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null }
 ];
 // ---- DATA_END ----
 
