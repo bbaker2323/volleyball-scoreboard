@@ -1,0 +1,360 @@
+<!DOCTYPE html><script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Benet Volleyball Scoreboard",
+  "schemaVersion": 1,
+  "description": "Live scoreboard tracking scores and player stats for Benet alumnae playing college volleyball across 19 NCAA/D3 programs. Data seeded pre-season and refreshed by a daily scheduled check once each team's 2026 season begins."
+}
+</script>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Benet Volleyball Alumni Scoreboard</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f6f7f9;
+    color: #1d2129;
+  }
+  header {
+    padding: 20px 24px 16px;
+    background: linear-gradient(135deg, #7a1f2b 0%, #4d1017 100%);
+    color: #fff;
+  }
+  header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 700; }
+  header p { margin: 0; font-size: 13px; opacity: 0.85; }
+  .meta-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    background: rgba(255,255,255,0.15);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .controls {
+    display: flex;
+    gap: 10px;
+    padding: 14px 24px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  #search {
+    flex: 1;
+    min-width: 180px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  select {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+    background: #fff;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+    padding: 18px 24px 40px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .college-name { font-size: 15px; font-weight: 700; }
+  .players { font-size: 12.5px; color: #555; }
+  .players a { color: #7a1f2b; text-decoration: none; }
+  .badge {
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.upcoming { background: #eef2ff; color: #3730a3; }
+  .badge.played { background: #ecfdf3; color: #027a48; }
+  .badge.noplayer { background: #f3f4f6; color: #6b7280; }
+  .next-match, .last-match {
+    font-size: 12.5px;
+    background: #f9fafb;
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .next-match .label, .last-match .label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8a8f98;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+    gap: 6px;
+  }
+  .stat-box {
+    background: #f9fafb;
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    padding: 6px 4px;
+    text-align: center;
+  }
+  .stat-box .stat-label {
+    display: block;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8a8f98;
+    margin-bottom: 2px;
+  }
+  .stat-box .stat-value { font-size: 13px; font-weight: 700; }
+  .stat-box a.stat-value { color: #1d2129; text-decoration: none; }
+  .stat-box a.stat-value:hover { color: #7a1f2b; text-decoration: underline; }
+  .score { font-weight: 700; }
+  .win { color: #027a48; }
+  .loss { color: #b42318; }
+  table.stats {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    margin-top: 2px;
+  }
+  table.stats th, table.stats td {
+    padding: 4px 5px;
+    text-align: center;
+    border-bottom: 1px solid #f0f1f3;
+  }
+  table.stats th { color: #8a8f98; font-weight: 600; }
+  table.stats td:first-child, table.stats th:first-child { text-align: left; }
+  .links { display: flex; gap: 8px; font-size: 11px; }
+  .links a { color: #7a1f2b; text-decoration: none; }
+  .empty-note {
+    font-size: 12px;
+    color: #8a8f98;
+    font-style: italic;
+  }
+  .history-toggle {
+    font-size: 11.5px;
+    color: #7a1f2b;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+  }
+  .history { display: none; flex-direction: column; gap: 8px; }
+  .history.open { display: flex; }
+  .match-block {
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: #fcfcfd;
+  }
+  footer {
+    text-align: center;
+    font-size: 11.5px;
+    color: #9aa0a8;
+    padding: 10px 0 28px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Benet Volleyball Alumni Scoreboard</h1>
+  <p>Tracking scores and player stats for Benet alumnae now playing college volleyball.</p>
+  <div class="meta-row">
+    <span class="meta-chip" id="chipTeams"></span>
+    <span class="meta-chip" id="chipPlayers"></span>
+    <span class="meta-chip" id="chipUpdated"></span>
+  </div>
+</header>
+
+<div class="controls">
+  <input id="search" type="text" placeholder="Search college or player...">
+  <select id="sortBy">
+    <option value="date">Sort by next match date</option>
+    <option value="name">Sort by college name</option>
+    <option value="status">Sort by status (played first)</option>
+  </select>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>Data seeded manually pre-season (Jul 26, 2026); Moody Bible Institute added Aug 2, 2026. Record/Conf/Last 5/RPI columns added Aug 2, 2026 (all zeroed out pre-season). Updated automatically by a daily check once each team's 2026 season begins.</footer>
+
+<script>
+// ---- DATA_START ----
+// This block is regenerated by the scheduled daily-check task as matches are played.
+// Each team: { college, players: [names], scheduleUrl, igUrl, twitterUrl, opener: {date, opponent, homeAway, note} | null, matches: [],
+//              record: "W-L", confRecord: "W-L", last5: "W-L" | "–", trackRpi: bool, rpi: number|null }
+// Each match: { date, opponent, homeAway, result: "W"|"L", setScore: "3-1", playerStats: [{player, kills, digs, aces, assists, blocks}] }
+// RPI source (D1 only): https://www.ncaa.com/rankings/volleyball-women/d1/ncaa-womens-volleyball-rpi
+// trackRpi is false for non-D1 programs (Moody Bible, Emory, UW-Stevens Point, St. Thomas (FL)) per Brad's request 2026-08-02.
+const LAST_UPDATED = "2026-08-02";
+const RPI_SOURCE_URL = "https://www.ncaa.com/rankings/volleyball-women/d1/ncaa-womens-volleyball-rpi";
+
+const TEAMS = [
+  { college: "University of Colorado", players: ["Audrey Asleson"], scheduleUrl: "https://cubuffs.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/cubuffsvb/", twitterUrl: "https://twitter.com/CUBuffsVB", opener: { date: "2026-08-28", opponent: "CSUN", homeAway: "Home" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "University of Dayton", players: ["Morgan Asleson"], scheduleUrl: "https://daytonflyers.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/udaytonvb/", twitterUrl: "https://twitter.com/DaytonVB", opener: { date: "2026-08-28", opponent: "Marquette", homeAway: "Home", note: "Flyer Invitational" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "St. Thomas (FL)", players: ["Whitney Battoe"], scheduleUrl: "https://stubobcats.com/sports/womens-volleyball/schedule", igUrl: "https://instagram.com/stu_volleyball", twitterUrl: "https://x.com/stuvolleyball", opener: { date: "2026-08-14", opponent: "Morningside (IA)", homeAway: "Neutral", note: "Keiser Tournament, West Palm Beach" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: false, rpi: null },
+  { college: "Maryland", players: ["Brooklynne Brass"], scheduleUrl: "https://umterps.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/terpsvolleyball/", twitterUrl: "https://twitter.com/TerpsVolleyball", opener: { date: "2026-08-28", opponent: "Howard", homeAway: "Away" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Rhode Island", players: ["Sophia Chinetti"], scheduleUrl: "https://gorhody.com/sports/womens-volleyball", igUrl: "https://www.instagram.com/rhodyvball/", twitterUrl: "https://x.com/rhodyvball", opener: { date: "2026-08-28", opponent: "Siena", homeAway: "Neutral", note: "CCSU Tournament" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Milwaukee (UW-Milwaukee)", players: ["Annie Eschenbach"], scheduleUrl: "https://mkepanthers.com/sports/womens-volleyball/roster", igUrl: "https://www.instagram.com/mke_volleyball/", twitterUrl: "https://twitter.com/MKE_Volleyball", opener: { date: "2026-08-28", opponent: "DePaul", homeAway: "Neutral", note: "Drake MTE, Des Moines" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "UW-Stevens Point", players: ["Grace Jermak"], scheduleUrl: "https://athletics.uwsp.edu/sports/womens-volleyball", igUrl: "https://www.instagram.com/uwspvolleyball/", twitterUrl: "https://x.com/UWSPVolleyball", opener: { date: "2026-09-04", opponent: "Wartburg", homeAway: "Away", note: "Carthage Tournament" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: false, rpi: null },
+  { college: "University of Cincinnati", players: ["Ava Ledebuhr"], scheduleUrl: "https://gobearcats.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/gobearcatsvb/", twitterUrl: "https://twitter.com/GoBearcatsVB", opener: { date: "2026-08-28", opponent: "Illinois", homeAway: "Away" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Emory University", players: ["Abby Lee", "Gabija Staniskis"], scheduleUrl: "https://emoryathletics.com/sports/womens-volleyball", igUrl: "https://www.instagram.com/emoryvolleyball/", twitterUrl: "https://x.com/emoryvolleyball", opener: { date: "2026-09-04", opponent: "Pfeiffer", homeAway: "Home", note: "Jenny McDowell Invitational" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: false, rpi: null },
+  { college: "Villanova University", players: ["MK Ritterbusch"], scheduleUrl: "https://villanova.com/sports/womens-volleyball", igUrl: "https://www.instagram.com/novavolleyball/", twitterUrl: "https://x.com/novavolleyball", opener: { date: "2026-08-28", opponent: "Pepperdine", homeAway: "Away", note: "Pepperdine Tournament" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Yale University", players: ["Gabby Stasys"], scheduleUrl: "https://yalebulldogs.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/yalevolleyball/", twitterUrl: "https://twitter.com/YaleVolleyball", opener: { date: "2026-09-04", opponent: "Hofstra", homeAway: "Home", note: "Yale Invitational" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Northwestern University", players: ["Ellie Stiernagle"], scheduleUrl: "https://nusports.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/nuvball/", twitterUrl: "https://twitter.com/NUVball", opener: { date: "2026-08-28", opponent: "George Mason", homeAway: "Away" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Wisconsin Badgers", players: ["Lynney Tarnow"], scheduleUrl: "https://uwbadgers.com/sports/womens-volleyball/schedule/2025", igUrl: "https://www.instagram.com/badgervb/", twitterUrl: "https://twitter.com/BadgerVB", opener: { date: "2026-08-21", opponent: "Kentucky", homeAway: "Neutral", note: "Fiserv Forum, Milwaukee" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Illinois State University", players: ["Peyton Turner"], scheduleUrl: "https://goredbirds.com/sports/womens-volleyball", igUrl: "https://www.instagram.com/redbirdvolleyball/", twitterUrl: "https://x.com/RedbirdVB", opener: { date: "2026-08-28", opponent: "Seton Hall", homeAway: "Away" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "University of Oklahoma", players: ["Aniya Warren"], scheduleUrl: "https://soonersports.com/sports/volleyball", igUrl: "https://www.instagram.com/ou_volleyball/", twitterUrl: "https://twitter.com/OU_Volleyball", opener: { date: "2026-08-28", opponent: "Texas State", homeAway: "Away", note: "Texas State Invitational" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Marquette", players: ["Molly Welge"], scheduleUrl: "https://gomarquette.com/sports/womens-volleyball", igUrl: "https://www.instagram.com/marquettevb/", twitterUrl: "https://x.com/MarquetteVB", opener: { date: "2026-08-24", opponent: "Texas", homeAway: "Neutral", note: "AVCA First Serve, Fiserv Forum" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Presbyterian College", players: ["Kierra O'Donnell"], scheduleUrl: "https://gobluehose.com/sports/womens-volleyball", igUrl: "https://www.instagram.com/bluehosewvb/", twitterUrl: "https://x.com/BlueHoseWVB", opener: { date: "2026-08-28", opponent: "Northwestern State", homeAway: "Neutral", note: "West Georgia Tournament" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Wake Forest", players: [], scheduleUrl: "https://godeacs.com/sports/womens-volleyball/roster", igUrl: "https://www.instagram.com/demondeacons/", twitterUrl: "https://x.com/demondeacons", opener: { date: "2026-09-04", opponent: "Davidson", homeAway: "Home", note: "Alumni weekend match" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Morehead State University", players: [], scheduleUrl: "https://msueagles.com/sports/womens-volleyball/schedule", igUrl: "https://www.instagram.com/msueaglesvb/", twitterUrl: "https://x.com/MSUEaglesVB", opener: { date: "2026-08-28", opponent: "Fairfield", homeAway: "Neutral", note: "Tennessee-hosted tournament" }, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: true, rpi: null },
+  { college: "Moody Bible Institute (Moody Archers)", players: [], scheduleUrl: "https://www.moodyarchers.org/sports/wvball/2026-27/schedule", igUrl: "https://www.instagram.com/moody_archers/", twitterUrl: "https://x.com/moodyarchers", opener: null, matches: [], record: "0-0", confRecord: "0-0", last5: "–", trackRpi: false, rpi: null }
+];
+// ---- DATA_END ----
+
+function fmtDate(iso) {
+  if (!iso) return "TBD";
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function daysUntil(iso) {
+  const today = new Date(new Date().toDateString());
+  const target = new Date(iso + "T00:00:00");
+  return Math.round((target - today) / 86400000);
+}
+
+function renderCard(team) {
+  const hasPlayers = team.players.length > 0;
+  const played = team.matches.length > 0;
+  const lastMatch = played ? team.matches[team.matches.length - 1] : null;
+
+  let statusBadge;
+  if (!hasPlayers) statusBadge = '<span class="badge noplayer">No alum listed</span>';
+  else if (played) statusBadge = '<span class="badge played">' + team.matches.length + ' match' + (team.matches.length > 1 ? "es" : "") + ' played</span>';
+  else statusBadge = '<span class="badge upcoming">Season not started</span>';
+
+  let nextBlock = "";
+  if (team.opener) {
+    const dl = daysUntil(team.opener.date);
+    const when = dl > 0 ? "in " + dl + " days" : (dl === 0 ? "today" : fmtDate(team.opener.date));
+    nextBlock = '<div class="next-match"><span class="label">Season opener</span>' +
+      fmtDate(team.opener.date) + " vs " + team.opener.opponent + " (" + team.opener.homeAway + ")" +
+      (team.opener.note ? " — " + team.opener.note : "") +
+      ' <span style="color:#8a8f98;">(' + when + ')</span></div>';
+  } else {
+    nextBlock = '<div class="next-match"><span class="label">Season opener</span>2026-27 schedule not yet posted</div>';
+  }
+
+  let lastBlock = "";
+  if (lastMatch) {
+    const cls = lastMatch.result === "W" ? "win" : "loss";
+    lastBlock = '<div class="last-match"><span class="label">Last match — ' + fmtDate(lastMatch.date) + '</span>' +
+      'vs ' + lastMatch.opponent + ' — <span class="score ' + cls + '">' + lastMatch.result + ' ' + lastMatch.setScore + '</span></div>';
+  }
+
+  let historyHtml = "";
+  if (played) {
+    const blocks = team.matches.slice().reverse().map(m => {
+      const cls = m.result === "W" ? "win" : "loss";
+      let rows = m.playerStats.map(function(s) {
+        return "<tr><td>" + s.player + "</td><td>" + s.kills + "</td><td>" + s.digs + "</td><td>" + s.aces + "</td><td>" + s.assists + "</td><td>" + s.blocks + "</td></tr>";
+      }).join("");
+      return '<div class="match-block">' +
+        '<div><strong>' + fmtDate(m.date) + '</strong> vs ' + m.opponent + ' (' + m.homeAway + ') — <span class="score ' + cls + '">' + m.result + ' ' + m.setScore + '</span></div>' +
+        '<table class="stats"><thead><tr><th>Player</th><th>K</th><th>D</th><th>Ace</th><th>Ast</th><th>Blk</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '</div>';
+    }).join("");
+    historyHtml = '<button class="history-toggle" onclick="this.nextElementSibling.classList.toggle(\'open\'); this.textContent = this.textContent.startsWith(\'Show\') ? this.textContent.replace(\'Show\',\'Hide\') : this.textContent.replace(\'Hide\',\'Show\');">Show match history &amp; stats ▾</button>' +
+      '<div class="history">' + blocks + '</div>';
+  } else {
+    historyHtml = '<div class="empty-note">No matches played yet — stats will appear here once the season starts.</div>';
+  }
+
+  const playersHtml = hasPlayers
+    ? team.players.join(", ")
+    : '<span style="color:#aab0b8;">—</span>';
+
+  const rpiValue = team.trackRpi
+    ? (team.rpi ? '<a class="stat-value" href="' + RPI_SOURCE_URL + '" target="_blank">#' + team.rpi + '</a>' : '<span class="stat-value" style="color:#aab0b8;">–</span>')
+    : '<span class="stat-value" style="color:#aab0b8;">N/A</span>';
+
+  const statGrid = '<div class="stat-grid">' +
+    '<div class="stat-box"><span class="stat-label">Record</span><span class="stat-value">' + team.record + '</span></div>' +
+    '<div class="stat-box"><span class="stat-label">Conf</span><span class="stat-value">' + team.confRecord + '</span></div>' +
+    '<div class="stat-box"><span class="stat-label">Last 5</span><span class="stat-value">' + team.last5 + '</span></div>' +
+    '<div class="stat-box"><span class="stat-label">RPI</span>' + rpiValue + '</div>' +
+    '</div>';
+
+  return '<div class="card" data-college="' + team.college.toLowerCase() + '" data-players="' + team.players.join(",").toLowerCase() + '" data-status="' + (played ? 1 : 0) + '" data-date="' + (team.opener && team.opener.date ? team.opener.date : "") + '">' +
+    '<div class="card-top"><div class="college-name">' + team.college + '</div>' + statusBadge + '</div>' +
+    '<div class="players">Benet alum: ' + playersHtml + '</div>' +
+    statGrid +
+    nextBlock + lastBlock + historyHtml +
+    '<div class="links"><a href="' + team.scheduleUrl + '" target="_blank">Schedule ↗</a>' +
+    (team.igUrl ? '<a href="' + team.igUrl + '" target="_blank">Instagram ↗</a>' : "") +
+    (team.twitterUrl ? '<a href="' + team.twitterUrl + '" target="_blank">X/Twitter ↗</a>' : "") + '</div>' +
+    '</div>';
+}
+
+function render() {
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const sortBy = document.getElementById("sortBy").value;
+
+  let list = TEAMS.filter(t =>
+    t.college.toLowerCase().includes(q) || t.players.join(" ").toLowerCase().includes(q)
+  );
+
+  if (sortBy === "date") {
+    list.sort((a, b) => ((a.opener && a.opener.date) || "9999").localeCompare((b.opener && b.opener.date) || "9999"));
+  } else if (sortBy === "name") {
+    list.sort((a, b) => a.college.localeCompare(b.college));
+  } else if (sortBy === "status") {
+    list.sort((a, b) => b.matches.length - a.matches.length);
+  }
+
+  document.getElementById("grid").innerHTML = list.map(renderCard).join("");
+}
+
+document.getElementById("chipTeams").textContent = TEAMS.length + " teams tracked";
+document.getElementById("chipPlayers").textContent = TEAMS.reduce((n, t) => n + t.players.length, 0) + " Benet alumnae";
+document.getElementById("chipUpdated").textContent = "Last updated " + fmtDate(LAST_UPDATED);
+
+document.getElementById("search").addEventListener("input", render);
+document.getElementById("sortBy").addEventListener("change", render);
+render();
+</script>
+</body>
+</html>
